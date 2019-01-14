@@ -1,26 +1,38 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'connected-react-router';
+import { PersistGate } from 'redux-persist/integration/react';
+import { createBrowserHistory } from 'history';
+
+import Main from './pages/Main';
+
+import setupStore from './store';
+
+const history = createBrowserHistory();
+const { store, persistor } = setupStore(history);
 
 class App extends Component {
+  state = {
+    error: null,
+  };
+
+  componentDidCatch(error) {
+    this.setState({ error });
+  }
   render() {
+    const { error } = this.state;
+    if (error) {
+      return <div>Something went wrong</div>;
+    }
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <ConnectedRouter history={history}>
+            <Main />
+          </ConnectedRouter>
+        </PersistGate>
+      </Provider>
     );
   }
 }
